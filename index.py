@@ -14,9 +14,9 @@ try:
     con = Conexao(host=os.getenv("HOST"), user=os.getenv("USER"), password=os.getenv("PASSWORD"), port=os.getenv("PORT"), database=os.getenv("DATABASE"))   
         
     app = Flask(__name__)
-    app.config['JWT_SECRET_KEY'] = 'fcfded42-c0fc-11ed-afa1-0242ac120002'
-    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=15)
-    app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(days=30)
+    app.config['JWT_SECRET_KEY'] = os.getenv("KEY")
+    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=5)
+    # app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(days=30)
     
     jwt = JWTManager(app)
     
@@ -218,4 +218,3 @@ try:
 
 except(Error) as error:
   print(error)
-

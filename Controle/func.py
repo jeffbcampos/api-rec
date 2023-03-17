@@ -9,7 +9,7 @@ def verificaSenha(senha):
         return False
     elif not re.search("[0-9]", senha): 
         return False
-    elif not re.search("['!@#$%¨&*(_+§¬¢£|°ºª^~]", senha): 
+    elif not re.search("['!.@#$%¨&*(_+§¬¢£|°ºª^~]", senha): 
         return False
     elif re.search("\s", senha): 
         return False
