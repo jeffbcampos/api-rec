@@ -115,8 +115,8 @@ try:
       tipo = request.json['tipo']
       id_api = request.json['id_api']
       id_usuario = get_jwt_identity()
-      sql = f"INSERT INTO filmes (titulo, imagem, nota, tipo, id_api, id_usuario) VALUES (%s, %s, %s, %s, %s, %s)"
-      values = titulo, imagem, nota, tipo, id_api, id_usuario
+      sql = f"INSERT INTO filmes (titulo, imagem, nota, tipo, id_api, id_usuario) SELECT %s, %s, %s, %s, %s, %s WHERE NOT EXISTS (SELECT 1 FROM filmes WHERE titulo = %s AND id_usuario = %s)"
+      values = (titulo, imagem, nota, tipo, id_api, id_usuario, titulo, id_usuario)
       con.queryExecute(sql, values)           
       return jsonify({'status': 'sucess'})
     
@@ -129,8 +129,8 @@ try:
       tipo = request.json['tipo']
       id_api = request.json['id_api']
       id_usuario = get_jwt_identity()      
-      sql = f"INSERT INTO series (titulo, imagem, nota, tipo, id_api, id_usuario) VALUES (%s, %s, %s, %s, %s, %s)"
-      values = titulo, imagem, nota, tipo, id_api, id_usuario
+      sql = f"INSERT INTO series (titulo, imagem, nota, tipo, id_api, id_usuario) SELECT %s, %s, %s, %s, %s, %s WHERE NOT EXISTS (SELECT 1 FROM series WHERE titulo = %s AND id_usuario = %s)"
+      values = (titulo, imagem, nota, tipo, id_api, id_usuario, titulo, id_usuario)
       con.queryExecute(sql, values)           
       return jsonify({'status': 'sucess'})
     
@@ -143,8 +143,8 @@ try:
       tipo = request.json['tipo']
       id_api = request.json['id_api']
       id_usuario = get_jwt_identity()
-      sql = f"INSERT INTO listadesejo (titulo, imagem, nota, tipo, id_api, id_usuario) VALUES (%s, %s, %s, %s, %s, %s)"
-      values = (titulo, imagem, nota, tipo, id_api, id_usuario)
+      sql = f"INSERT INTO listadesejo (titulo, imagem, nota, tipo, id_api, id_usuario) SELECT %s, %s, %s, %s, %s, %s WHERE NOT EXISTS (SELECT 1 FROM listadesejo WHERE titulo = %s AND id_usuario = %s)"
+      values = (titulo, imagem, nota, tipo, id_api, id_usuario, titulo, id_usuario)
       con.queryExecute(sql, values)       
       return jsonify({'status': 'sucess'})
     
@@ -173,15 +173,10 @@ try:
     @jwt_required()
     def removerListaDesejo():
       titulo = request.json['titulo']
-      id_usuario = get_jwt_identity()
-      sql = f"SELECT * FROM listaDesejo WHERE titulo = '{titulo}' AND id_usuario = '{id_usuario}' "
-      resposta = con.querySelect(sql)          
-      if(resposta is []):
-        return jsonify({'status' : 'fail'})
-      else:
-        sql = f"DELETE FROM listaDesejo WHERE titulo = '{titulo}'  AND id_usuario = '{id_usuario}'"
-        con.queryExecute(sql, values=None)        
-        return jsonify({'status': 'sucess'})
+      id_usuario = get_jwt_identity()      
+      sql = f"DELETE FROM listadesejo WHERE titulo = '{titulo}'  AND id_usuario = '{id_usuario}';"
+      con.queryExecute(sql, values=None)        
+      return jsonify({'status': 'sucess'})
     
     @app.route("/removerFilme", methods = ['POST'])
     @jwt_required()
