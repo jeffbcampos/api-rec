@@ -7,8 +7,7 @@ class Conexao:
         self.user = user
         self.password = password
         self.port = port
-        self.database = database
-    
+        self.database = database   
     
     def queryExecute(self, sql, values):
 
@@ -17,9 +16,7 @@ class Conexao:
                 with con.cursor() as cursor:
                     cursor.execute(sql, values)
                     con.commit()
-
-            return "Sucess"
-    
+            return "Sucess"    
         except Error as error:
             return f"Ocorreu um erro {error}"
     
@@ -29,7 +26,16 @@ class Conexao:
                 with con.cursor() as cursor:
                     cursor.execute(sql)
                     resultado = cursor.fetchall()
-
+            return resultado
+        except Error as error:
+            return f"Ocorreu um erro {error}"
+        
+    def querySelectOne(self, sql):
+        try:
+            with connect(host=self.host, user=self.user, password=self.password, port=self.port, database=self.database) as con:
+                with con.cursor() as cursor:
+                    cursor.execute(sql)
+                    resultado = cursor.fetchone()
             return resultado
         except Error as error:
             return f"Ocorreu um erro {error}"
