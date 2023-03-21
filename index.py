@@ -67,7 +67,8 @@ try:
         return jsonify({'status' : 'fail'})
       else:      
         if checkpw(senha, resposta[3].encode('utf-8')):          
-          access_token = create_access_token(identity=resposta[0])                 
+          app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=5)
+          access_token = create_access_token(identity=resposta[0])                       
           return jsonify({'status' : 'sucess', 'id': f'{resposta[0]}', 'nome' : f'{resposta[1]}', 'access_token': f'{access_token}'})        
         else:
           return jsonify({'status' : 'fail'})
@@ -297,7 +298,7 @@ try:
       email = request.args.get('email')
       nome = request.args.get('nome')
       senha = request.args.get('senha')
-      app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=10)
+      app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=15)
       tokenEmail = create_access_token(identity=email)
       sql = f"INSERT INTO verificacao (nome, email, senha, token) VALUES (%s, %s, %s, %s);"
       values = (nome, email, senha, tokenEmail)
@@ -305,7 +306,7 @@ try:
       msg = Message('Confirmação de Cadastro', sender='project-rec@outlook.com', recipients=[f'{email}'])          
       url = f'{apiUrl}/confirmarEmail/{tokenEmail}'     
       msg.html = f'''        
-        <p>Confirme seu cadastro através do botão abaixo:</p>
+        <p>Confirme seu cadastro através do link abaixo:</p>
         <a href="{url}">
             {url}
         </a>'''
@@ -328,7 +329,7 @@ try:
         msg = Message('Alteração de Senha', sender='project-rec@outlook.com', recipients=[f'{email}'])
         url = f'{apiUrl}/check-token/{tokenEmail}'
         msg.html = f'''        
-        <p>Altere sua senha através do botão abaixo:</p>
+        <p>Altere sua senha através do link abaixo:</p>
         <a href="{url}">
             {url}
         </a>'''
