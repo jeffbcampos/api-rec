@@ -158,7 +158,7 @@ try:
     elif(request.method == 'POST'):
       titulo = request.json['titulo']
       id_usuario = get_jwt_identity()
-      sql = f"SELECT * FROM series WHERE titulo = '{titulo}' AND id_usuario = '{id_usuario}"        
+      sql = f"SELECT * FROM series WHERE titulo = '{titulo}' AND id_usuario = '{id_usuario}'"        
       resposta = con.querySelectOne(sql)
       if(resposta is None):
         return jsonify({'status' : 'fail'})
