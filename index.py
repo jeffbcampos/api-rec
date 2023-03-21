@@ -33,7 +33,7 @@ try:
   
   mail.init_app(app)
   
-  apiUrl = 'https://teste-api-projeto.vercel.app'
+  apiUrl = 'https://api-rec.vercel.app/'
   recUrl = 'https://rec-eight.vercel.app'
     
   @app.route("/")
