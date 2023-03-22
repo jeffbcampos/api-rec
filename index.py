@@ -343,13 +343,13 @@ try:
     try:
       decoded_token = decode_token(token)
       if decoded_token == 'access':
-        return redirect(f'{recUrl}/alterar-senha/{token}')
+        return redirect(f'{recUrl}/novaSenha?q={token}')
       else:
         return redirect(f'{recUrl}/erro404')
     except Exception as e:      
       return redirect(f'{recUrl}/token-expired') 
   
-  @app.route('/alterarSenha/<token>', methods =['POST'])  
+  @app.route('/novaSenha/<token>', methods =['POST'])  
   def alterarSenha(token):    
     try:      
       tokenConfirm = decode_token(token)    
