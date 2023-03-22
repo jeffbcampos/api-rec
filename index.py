@@ -282,13 +282,13 @@ try:
     except Exception as e:      
       return redirect(f'{recUrl}/mandou-errado')     
     
-  @app.route("/confirmarEmail/<token>", methods =['GET'])      
+  @app.route("/confirmarEmail", methods =['GET'])      
   def confirmarEmail(token):
     try:
-      tokenConfirm = decode_token(token)
-      email = tokenConfirm['sub']
       sql = f"SELECT * FROM verificacao WHERE email = '{email}' AND token = '{token}' AND isValid = 'false';"         
       resposta = con.querySelectOne(sql)
+      tokenConfirm = decode_token(resposta[5])
+      email = tokenConfirm['sub']      
       if(resposta is None):
         return redirect(f'{recUrl}/rota-none')
       else:            
