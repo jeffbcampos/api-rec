@@ -276,18 +276,22 @@ try:
     try:
       decoded_token = decode_token(token)      
       if decoded_token['type'] == 'access':
-        return redirect(url_for('confirmarEmail', token=token))
+        sql = f"SELECT * FROM verificacao WHERE token = '{token}';"
+        resposta = con.querySelectOne(sql)    
+        if resposta[4] == False:        
+          return redirect(url_for('confirmarEmail', token=token))
+        elif resposta[4] == True:
+          return redirect(f'{recUrl}/morreu-aqui')
       else:
         return redirect(f'{recUrl}/erro404')
     except Exception as e:      
-      return redirect(f'{recUrl}/token-expired')    
+      return redirect(f'{recUrl}/morreu-no-checkmail')    
     
   @app.route("/confirmarEmail", methods =['GET'])      
   def confirmarEmail():
     token = request.args.get('token')    
     sql = f"SELECT * FROM verificacao WHERE token = '{token}';"
-    resposta = con.querySelectOne(sql)
-    print(resposta)
+    resposta = con.querySelectOne(sql)    
     if resposta[4] == False:                    
       sql = f"UPDATE verificacao SET isValid='true' WHERE senha = %s"
       values = (resposta[3],)
