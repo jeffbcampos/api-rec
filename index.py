@@ -35,7 +35,7 @@ try:
   
   mail.init_app(app)
   
-  apiUrl = 'api-rec.vercel.app'
+  apiUrl = 'https://api-rec.vercel.app'
   recUrl = 'https://rec-eight.vercel.app'
     
   @app.route("/")
@@ -295,9 +295,9 @@ try:
       sql = f'''INSERT INTO usuarios (nome, email, senha) SELECT %s, %s, %s WHERE NOT EXISTS (SELECT 1 FROM usuarios WHERE email = %s);'''
       values = (resposta[1], resposta[2], resposta[3], resposta[2])
       con.queryExecute(sql, values)
-      return redirect(f'{recUrl}/finalizado')
+      return redirect(f'https://api-rec.vercel.app/finalizado')
     else:
-      return redirect(f'{recUrl}/token-expired')    
+      return redirect(f'https://api-rec.vercel.app/token-expired')    
   
   @app.route("/enviarEmail", methods =['GET'])
   def enviarEmail():
@@ -311,7 +311,7 @@ try:
       values = (nome, email, senha, tokenEmail)
       con.queryExecute(sql, values)
       msg = Message('Confirmação de Cadastro', sender='project-rec@outlook.com', recipients=[f'{email}'])          
-      url = f'{apiUrl}/check-email/{tokenEmail}'     
+      url = f'https://api-rec.vercel.app/check-email/{tokenEmail}'     
       msg.html = f'''        
         <p>Confirme seu cadastro através do link abaixo:</p>
         <a href="{url}">
