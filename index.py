@@ -278,7 +278,7 @@ try:
       sql = f"SELECT * FROM verificacao WHERE token = '{token}';"
       resposta = con.querySelectOne(sql)    
       if resposta[4] == False:        
-        return url_for('confirmarEmail', token=token)
+        return redirect(url_for('confirmarEmail', token=token))
       elif resposta[4] == True:
         return redirect(f'{recUrl}/morreu-aqui')
     else:
