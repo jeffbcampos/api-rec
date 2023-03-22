@@ -274,31 +274,29 @@ try:
   @app.route('/check-email/<token>', methods =['GET'])    
   def checkEmail(token):
     try:
-      decoded_token = decode_token(token)
+      sql = f"SELECT * FROM verificacao WHERE senha = '{token}';"
+      resposta = con.querySelectOne(sql)
+      decoded_token = decode_token(resposta[5])
       email = decoded_token['sub']
       if decoded_token['type'] == 'access':
-        return redirect(url_for('confirmarEmail', email=email, token=token))
+        return redirect(url_for('confirmarEmail', token=token))
       else:
         return redirect(f'{recUrl}/erro404')
     except Exception as e:      
       return redirect(f'{recUrl}/mandou-errado')    
     
   @app.route("/confirmarEmail", methods =['GET'])      
-  def confirmarEmail():    
-    email = request.args.get('email')
-    token = request.args.get('token')
-    sql = f"SELECT * FROM verificacao WHERE email = '{email}' AND token = '{token}' ORDER BY data DESC LIMIT 1;"         
-    resposta = con.querySelectOne(sql)          
-    if(resposta is None):
-      return redirect(f'{recUrl}/rota-none')
-    else:            
-      sql = f"UPDATE verificacao SET isValid=true WHERE token = %s"
-      values = (token,)
-      con.queryExecute(sql, values)
-      sql = f'''INSERT INTO usuarios (nome, email, senha) SELECT %s, %s, %s WHERE NOT EXISTS (SELECT 1 FROM usuarios WHERE email = %s);'''
-      values = (resposta[1], resposta[2], resposta[3], resposta[2])
-      con.queryExecute(sql, values)
-      return redirect(f'{recUrl}/finalizado')
+  def confirmarEmail():
+    senha = request.args.get('token')
+    sql = f"SELECT * FROM verificacao WHERE senha = '{senha}';"
+    resposta = con.querySelectOne(sql)                 
+    sql = f"UPDATE verificacao SET isValid=true WHERE senha = %s"
+    values = (senha,)
+    con.queryExecute(sql, values)
+    sql = f'''INSERT INTO usuarios (nome, email, senha) SELECT %s, %s, %s WHERE NOT EXISTS (SELECT 1 FROM usuarios WHERE email = %s);'''
+    values = (resposta[1], resposta[2], resposta[3], resposta[2])
+    con.queryExecute(sql, values)
+    return redirect(f'{recUrl}/finalizado')    
   
   @app.route("/enviarEmail", methods =['GET'])
   def enviarEmail():
@@ -312,7 +310,7 @@ try:
       values = (nome, email, senha, tokenEmail)
       con.queryExecute(sql, values)
       msg = Message('Confirmação de Cadastro', sender='project-rec@outlook.com', recipients=[f'{email}'])          
-      url = f'{apiUrl}/check-email/{tokenEmail}'     
+      url = f'{apiUrl}/check-email/{senha}'     
       msg.html = f'''        
         <p>Confirme seu cadastro através do link abaixo:</p>
         <a href="{url}">
