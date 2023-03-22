@@ -270,7 +270,17 @@ try:
       return jsonify({'status': 'sucess'})
     except Exception as e:
       return redirect(f'{recUrl}/error404')
-      
+  
+  @app.route('/check-email/<token>', methods =['GET'])    
+  def checkEmail(token):
+    try:
+      decoded_token = decode_token(token)
+      if decoded_token['type'] == 'access':
+        return redirect(f'{recUrl}/confirmarEmail/<token>')
+      else:
+        return redirect(f'{recUrl}/erro404')
+    except Exception as e:      
+      return redirect(f'{recUrl}/token-expired')     
     
   @app.route("/confirmarEmail/<token>", methods =['GET'])      
   def confirmarEmail(token):
@@ -301,7 +311,7 @@ try:
       email = request.args.get('email')
       nome = request.args.get('nome')
       senha = request.args.get('senha')
-      app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=15)
+      app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=3)
       tokenEmail = create_access_token(identity=email)
       sql = f"INSERT INTO verificacao (nome, email, senha, token) VALUES (%s, %s, %s, %s);"
       values = (nome, email, senha, tokenEmail)
