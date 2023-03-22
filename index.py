@@ -272,20 +272,17 @@ try:
       return redirect(f'{recUrl}/error404')
   
   @app.route('/check-email/<token>', methods =['GET'])    
-  def checkEmail(token):
-    try:
-      decoded_token = decode_token(token)      
-      if decoded_token['type'] == 'access':
-        sql = f"SELECT * FROM verificacao WHERE token = '{token}';"
-        resposta = con.querySelectOne(sql)    
-        if resposta[4] == False:        
-          return redirect(url_for('confirmarEmail', token=token))
-        elif resposta[4] == True:
-          return redirect(f'{recUrl}/morreu-aqui')
-      else:
-        return redirect(f'{recUrl}/erro404')
-    except Exception as e:      
-      return redirect(f'{recUrl}/morreu-no-checkmail')    
+  def checkEmail(token):    
+    decoded_token = decode_token(token)      
+    if decoded_token['type'] == 'access':
+      sql = f"SELECT * FROM verificacao WHERE token = '{token}';"
+      resposta = con.querySelectOne(sql)    
+      if resposta[4] == False:        
+        return redirect(url_for('confirmarEmail', token=token))
+      elif resposta[4] == True:
+        return redirect(f'{recUrl}/morreu-aqui')
+    else:
+      return redirect(f'{recUrl}/erro404')       
     
   @app.route("/confirmarEmail", methods =['GET'])      
   def confirmarEmail():
@@ -386,3 +383,4 @@ try:
 
 except(Error) as error:
   print(error)
+  
