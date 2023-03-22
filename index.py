@@ -309,13 +309,13 @@ try:
       email = request.args.get('email')
       nome = request.args.get('nome')
       senha = request.args.get('senha')
-      app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=2)
+      app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=15)
       tokenEmail = create_access_token(identity=email)
       sql = f"INSERT INTO verificacao (nome, email, senha, token) VALUES (%s, %s, %s, %s);"
       values = (nome, email, senha, tokenEmail)
       con.queryExecute(sql, values)
       msg = Message('Confirmação de Cadastro', sender='project-rec@outlook.com', recipients=[f'{email}'])          
-      url = f'{apiUrl}/{tokenEmail}'     
+      url = f'{apiUrl}/check-email/{tokenEmail}'     
       msg.html = f'''        
         <p>Confirme seu cadastro através do link abaixo:</p>
         <a href="{url}">{url}</a>'''
