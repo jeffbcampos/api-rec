@@ -284,26 +284,23 @@ try:
       return redirect(f'{recUrl}/mandou-errado')    
     
   @app.route("/confirmarEmail", methods =['GET'])      
-  def confirmarEmail():
-    try:
-      email = request.args.get('email')
-      token = request.args.get('token')
-      sql = f"SELECT * FROM verificacao WHERE email = '{email}' AND token = '{token}' AND isValid = 'false';"         
-      resposta = con.querySelectOne(sql)
-      tokenConfirm = decode_token(resposta[5])
-      email = tokenConfirm['sub']      
-      if(resposta is None):
-        return redirect(f'{recUrl}/rota-none')
-      else:            
-        sql = f"UPDATE verificacao SET isValid=true WHERE token = %s"
-        values = (token,)
-        con.queryExecute(sql, values)
-        sql = f'''INSERT INTO usuarios (nome, email, senha) SELECT %s, %s, %s WHERE NOT EXISTS (SELECT 1 FROM usuarios WHERE email = %s);'''
-        values = (resposta[1], resposta[2], resposta[3], resposta[2])
-        con.queryExecute(sql, values)
-        return redirect(f'{recUrl}/finalizado')        
-    except Exception as e:      
-      return redirect(f'{recUrl}/rota-exception')
+  def confirmarEmail():    
+    email = request.args.get('email')
+    token = request.args.get('token')
+    sql = f"SELECT * FROM verificacao WHERE email = '{email}' AND token = '{token}' AND isValid = 'false';"         
+    resposta = con.querySelectOne(sql)
+    tokenConfirm = decode_token(resposta[5])
+    email = tokenConfirm['sub']      
+    if(resposta is None):
+      return redirect(f'{recUrl}/rota-none')
+    else:            
+      sql = f"UPDATE verificacao SET isValid=true WHERE token = %s"
+      values = (token,)
+      con.queryExecute(sql, values)
+      sql = f'''INSERT INTO usuarios (nome, email, senha) SELECT %s, %s, %s WHERE NOT EXISTS (SELECT 1 FROM usuarios WHERE email = %s);'''
+      values = (resposta[1], resposta[2], resposta[3], resposta[2])
+      con.queryExecute(sql, values)
+      return redirect(f'{recUrl}/finalizado')
   
   @app.route("/enviarEmail", methods =['GET'])
   def enviarEmail():
