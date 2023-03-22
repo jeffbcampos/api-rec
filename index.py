@@ -299,9 +299,13 @@ try:
       sql = f'''INSERT INTO usuarios (nome, email, senha) SELECT %s, %s, %s WHERE NOT EXISTS (SELECT 1 FROM usuarios WHERE email = %s);'''
       values = (resposta[1], resposta[2], resposta[3], resposta[2])
       con.queryExecute(sql, values)
-      return redirect(f'{recUrl}/finalizado')
+      return redirect(url_for('finalizado'))
     else:
-      return redirect(f'{recUrl}/token-expired')    
+      return redirect(f'{recUrl}/token-expired')
+  
+  @app.route("/finalizado", methods =['GET'])
+  def finalizado():
+    return redirect(f'{recUrl}/finalizado')   
   
   @app.route("/enviarEmail", methods =['GET'])
   def enviarEmail():
