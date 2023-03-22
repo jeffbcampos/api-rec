@@ -274,10 +274,7 @@ try:
   @app.route('/check-email/<token>', methods =['GET'])    
   def checkEmail(token):
     try:
-      sql = f"SELECT * FROM verificacao WHERE senha = '{token}';"
-      resposta = con.querySelectOne(sql)
-      decoded_token = decode_token(resposta[5])
-      email = decoded_token['sub']
+      decoded_token = decode_token(token)      
       if decoded_token['type'] == 'access':
         return redirect(url_for('confirmarEmail', token=token))
       else:
@@ -287,11 +284,13 @@ try:
     
   @app.route("/confirmarEmail", methods =['GET'])      
   def confirmarEmail():
-    senha = request.args.get('token')
-    sql = f"SELECT * FROM verificacao WHERE senha = '{senha}';"
-    resposta = con.querySelectOne(sql)                 
-    sql = f"UPDATE verificacao SET isValid=true WHERE senha = %s"
-    values = (senha,)
+    token = request.args.get('token')
+    decoded_token = decode_token(token)
+    email = decoded_token['sub']
+    sql = f"SELECT * FROM verificacao WHERE email = '{email}' ORDER BY email DESC;"
+    resposta = con.querySelectOne(sql)                    
+    sql = f"UPDATE verificacao SET isValid='true' WHERE senha = %s"
+    values = (resposta[3],)
     con.queryExecute(sql, values)
     sql = f'''INSERT INTO usuarios (nome, email, senha) SELECT %s, %s, %s WHERE NOT EXISTS (SELECT 1 FROM usuarios WHERE email = %s);'''
     values = (resposta[1], resposta[2], resposta[3], resposta[2])
@@ -310,7 +309,7 @@ try:
       values = (nome, email, senha, tokenEmail)
       con.queryExecute(sql, values)
       msg = Message('Confirmação de Cadastro', sender='project-rec@outlook.com', recipients=[f'{email}'])          
-      url = f'{apiUrl}/check-email/{senha}'     
+      url = f'{apiUrl}/check-email/{tokenEmail}'     
       msg.html = f'''        
         <p>Confirme seu cadastro através do link abaixo:</p>
         <a href="{url}">
