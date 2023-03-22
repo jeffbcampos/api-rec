@@ -280,7 +280,7 @@ try:
       else:
         return redirect(f'{recUrl}/erro404')
     except Exception as e:      
-      return redirect(f'{recUrl}/token-expired')     
+      return redirect(f'{recUrl}/mandou-errado')     
     
   @app.route("/confirmarEmail/<token>", methods =['GET'])      
   def confirmarEmail(token):
