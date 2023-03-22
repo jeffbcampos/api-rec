@@ -311,10 +311,10 @@ try:
       values = (nome, email, senha, tokenEmail)
       con.queryExecute(sql, values)
       msg = Message('Confirmação de Cadastro', sender='project-rec@outlook.com', recipients=[f'{email}'])          
-      url = f'https://api-rec.vercel.app/check-email/{tokenEmail}'     
+      url = f'http://api-rec.vercel.app/check-email/{tokenEmail}'     
       msg.html = f'''        
         <p>Confirme seu cadastro através do link abaixo:</p>
-        <a href="{url}">https://api-rec.vercel.app/check-email/{tokenEmail}</a>'''
+        <a href="{url}">api-rec.vercel.app/check-email/{tokenEmail}</a>'''
       mail.send(msg)               
       return jsonify({'status': 'sucess'})
     except Exception as e:
