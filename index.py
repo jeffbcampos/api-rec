@@ -276,7 +276,7 @@ try:
     try:
       decoded_token = decode_token(token)
       if decoded_token['type'] == 'access':
-        return redirect(f'{apiUrl}/confirmarEmail/{token}')
+        return redirect(f'{apiUrl}/confirmarEmail')
       else:
         return redirect(f'{recUrl}/erro404')
     except Exception as e:      
