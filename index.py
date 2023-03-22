@@ -296,7 +296,7 @@ try:
       sql = f'''INSERT INTO usuarios (nome, email, senha) SELECT %s, %s, %s WHERE NOT EXISTS (SELECT 1 FROM usuarios WHERE email = %s);'''
       values = (resposta[1], resposta[2], resposta[3], resposta[2])
       con.queryExecute(sql, values)
-      return url_for(f'{recUrl}/finalizado'), 200
+      return redirect(f'{recUrl}/finalizado', code=301)
     else:
       return redirect(f'{recUrl}/token-expired')
   
