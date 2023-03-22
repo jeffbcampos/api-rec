@@ -35,7 +35,7 @@ try:
   
   mail.init_app(app)
   
-  apiUrl = 'https://api-rec.vercel.app'
+  apiUrl = 'http://127.0.0.1:5000'
   recUrl = 'https://rec-eight.vercel.app'
     
   @app.route("/")
@@ -272,30 +272,17 @@ try:
       return redirect(f'{recUrl}/error404')
   
   @app.route('/check-email/<token>', methods =['GET'])    
-  def checkEmail(token):
-    user_agent = request.headers.get('User-Agent')
-    if 'Hotmail' in user_agent:
+  def checkEmail(token):             
+    decoded_token = decode_token(token)      
+    if decoded_token['type'] == 'access':
       sql = f"SELECT * FROM verificacao WHERE token = '{token}';"
       resposta = con.querySelectOne(sql)    
-      if resposta[4] == False:                    
-        sql = f"UPDATE verificacao SET isValid='true' WHERE senha = %s"
-        values = (resposta[3],)
-        con.queryExecute(sql, values)
-        sql = f'''INSERT INTO usuarios (nome, email, senha) SELECT %s, %s, %s WHERE NOT EXISTS (SELECT 1 FROM usuarios WHERE email = %s);'''
-        values = (resposta[1], resposta[2], resposta[3], resposta[2])
-        con.queryExecute(sql, values)
-        return redirect(url_for('finalizado'))
-    else:      
-      decoded_token = decode_token(token)      
-      if decoded_token['type'] == 'access':
-        sql = f"SELECT * FROM verificacao WHERE token = '{token}';"
-        resposta = con.querySelectOne(sql)    
-        if resposta[4] == False:        
-          return redirect(url_for('confirmarEmail', token=token))
-        elif resposta[4] == True:
-          return redirect(f'{recUrl}/morreu-aqui')
-      else:
-        return redirect(f'{recUrl}/erro404')       
+      if resposta[4] == False:        
+        return redirect(url_for('confirmarEmail', token=token))
+      elif resposta[4] == True:
+        return redirect(f'{recUrl}/morreu-aqui')
+    else:
+      return redirect(f'{recUrl}/erro404')       
     
   @app.route("/confirmarEmail", methods =['GET'])      
   def confirmarEmail():
@@ -309,7 +296,7 @@ try:
       sql = f'''INSERT INTO usuarios (nome, email, senha) SELECT %s, %s, %s WHERE NOT EXISTS (SELECT 1 FROM usuarios WHERE email = %s);'''
       values = (resposta[1], resposta[2], resposta[3], resposta[2])
       con.queryExecute(sql, values)
-      return redirect(f'{recUrl}/finalizado')
+      return redirect(f'{recUrl}/finalizado'), 200
     else:
       return redirect(f'{recUrl}/token-expired')
   
