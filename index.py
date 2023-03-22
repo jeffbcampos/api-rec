@@ -280,14 +280,15 @@ try:
       else:
         return redirect(f'{recUrl}/erro404')
     except Exception as e:      
-      return redirect(f'{recUrl}/mandou-errado')    
+      return redirect(f'{recUrl}/token-expired')    
     
   @app.route("/confirmarEmail", methods =['GET'])      
   def confirmarEmail():
     token = request.args.get('token')    
     sql = f"SELECT * FROM verificacao WHERE token = '{token}';"
     resposta = con.querySelectOne(sql)
-    if resposta[5] == 'false':                    
+    print(resposta)
+    if resposta[4] == False:                    
       sql = f"UPDATE verificacao SET isValid='true' WHERE senha = %s"
       values = (resposta[3],)
       con.queryExecute(sql, values)
@@ -296,7 +297,7 @@ try:
       con.queryExecute(sql, values)
       return redirect(f'{recUrl}/finalizado')
     else:
-      return redirect(f'{recUrl}/clicou-mais-de-uma-vez')    
+      return redirect(f'{recUrl}/token-expired')    
   
   @app.route("/enviarEmail", methods =['GET'])
   def enviarEmail():
@@ -319,7 +320,7 @@ try:
       mail.send(msg)               
       return jsonify({'status': 'sucess'})
     except Exception as e:
-      return redirect(f'{recUrl}/error')
+      return redirect(f'{recUrl}/error404')
   
   @app.route('/recuperarSenha', methods =['POST'])
   def recuperarSenha():
