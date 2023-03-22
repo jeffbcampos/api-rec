@@ -287,10 +287,8 @@ try:
   def confirmarEmail():    
     email = request.args.get('email')
     token = request.args.get('token')
-    sql = f"SELECT * FROM verificacao WHERE email = '{email}' AND token = '{token}' AND isValid = 'false';"         
-    resposta = con.querySelectOne(sql)
-    tokenConfirm = decode_token(resposta[5])
-    email = tokenConfirm['sub']      
+    sql = f"SELECT * FROM verificacao WHERE email = '{email}' AND token = '{token}' ORDER BY data DESC LIMIT 1;"         
+    resposta = con.querySelectOne(sql)          
     if(resposta is None):
       return redirect(f'{recUrl}/rota-none')
     else:            
