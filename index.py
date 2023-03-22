@@ -305,7 +305,7 @@ try:
       email = request.args.get('email')
       nome = request.args.get('nome')
       senha = request.args.get('senha')
-      app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=3)
+      app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=2)
       tokenEmail = create_access_token(identity=email)
       sql = f"INSERT INTO verificacao (nome, email, senha, token) VALUES (%s, %s, %s, %s);"
       values = (nome, email, senha, tokenEmail)
