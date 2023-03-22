@@ -342,7 +342,7 @@ try:
   def checkToken(token):
     try:
       decoded_token = decode_token(token)
-      if decoded_token == 'access':
+      if decoded_token['type'] == 'access':
         return redirect(f'{recUrl}/novaSenha?q={token}')
       else:
         return redirect(f'{recUrl}/erro404')
