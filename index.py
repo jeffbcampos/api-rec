@@ -275,16 +275,19 @@ try:
   def checkEmail(token):
     try:
       decoded_token = decode_token(token)
+      email = decoded_token['sub']
       if decoded_token['type'] == 'access':
-        return redirect(f'{apiUrl}/confirmarEmail')
+        return redirect(url_for('confirmarEmail', email=email, token=token))
       else:
         return redirect(f'{recUrl}/erro404')
     except Exception as e:      
-      return redirect(f'{recUrl}/mandou-errado')     
+      return redirect(f'{recUrl}/mandou-errado')    
     
   @app.route("/confirmarEmail", methods =['GET'])      
-  def confirmarEmail(token):
+  def confirmarEmail():
     try:
+      email = request.args.get('email')
+      token = request.args.get('token')
       sql = f"SELECT * FROM verificacao WHERE email = '{email}' AND token = '{token}' AND isValid = 'false';"         
       resposta = con.querySelectOne(sql)
       tokenConfirm = decode_token(resposta[5])
