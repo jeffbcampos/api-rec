@@ -121,12 +121,19 @@ try:
   def deletarUsuario():
     try:
       id_usuario = get_jwt_identity()
-      sql = f'''DELETE FROM filmes WHERE id_usuario = '{id_usuario}';
-      DELETE FROM series WHERE id_usuario = '{id_usuario}';
-      DELETE FROM listadesejo WHERE id_usuario = '{id_usuario}';
-      DELETE FROM usuarios WHERE id = '{id_usuario}';'''
-      con.queryExecute(sql, values=None)      
-      return jsonify({'status' : 'sucess'})
+      senhaUser = request.json['senha'].encode('utf-8')
+      sql = f"SELECT * FROM usuarios WHERE id = '{id_usuario}';"
+      resposta = con.querySelectOne(sql)
+      senha = resposta[3].encode('utf-8')
+      if checkpw(senhaUser, senha):
+        sql = f'''DELETE FROM filmes WHERE id_usuario = '{id_usuario}';
+        DELETE FROM series WHERE id_usuario = '{id_usuario}';
+        DELETE FROM listadesejo WHERE id_usuario = '{id_usuario}';
+        DELETE FROM usuarios WHERE id = '{id_usuario}';'''
+        con.queryExecute(sql, values=None)      
+        return jsonify({'status' : 'sucess'})
+      else:
+        return jsonify({'status' : 'fail'})
     except Exception as e:
       return redirect(f'{recUrl}/error404')
   
