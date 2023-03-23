@@ -1,4 +1,5 @@
 from dotenv import load_dotenv
+from apscheduler.schedulers.background import BackgroundScheduler
 from Controle.classConexao import Conexao
 from Controle.func import verificaSenha
 load_dotenv()
@@ -37,6 +38,14 @@ try:
   
   apiUrl = 'https://api-rec.vercel.app'
   recUrl = 'https://rec-eight.vercel.app'
+  
+  def usersNotVerified():
+    sql = "DELETE FROM verificacao WHERE isvalid = false"
+    con.queryExecute(sql, values=None)
+  
+  scheduler = BackgroundScheduler()
+  scheduler.add_job(usersNotVerified, 'interval', days=1)
+  scheduler.start()
     
   @app.route("/")
   def home():
