@@ -37,7 +37,6 @@ try:
   
   apiUrl = 'https://api-rec.vercel.app'
   recUrl = 'https://rec-eight.vercel.app'
-  contador = 0  
   @app.route("/")
   def home():
       return "API ainda não explodiu"
@@ -273,22 +272,17 @@ try:
   
   @app.route('/check-email/<token>', methods =['GET'])    
   def checkEmail(token):
-    try:      
-      if contador == 0:
-        contador += 1                   
+    try:                         
         decoded_token = decode_token(token)      
-        if decoded_token['type'] == 'access':
-          decoded_token['contador'] = 1
+        if decoded_token['type'] == 'access':          
           sql = f"SELECT * FROM verificacao WHERE token = '{token}';"
           resposta = con.querySelectOne(sql)    
           if resposta[4] == False:        
             return redirect(url_for('confirmarEmail', token=token))
           elif resposta[4] == True:
-            return redirect(f'{recUrl}/morreu-aqui')
+            return redirect(f'{recUrl}/finalizado')
         else:
-          return redirect(f'{recUrl}/token-expired')
-      else:
-        return redirect(f'{recUrl}/finalizado')       
+          return redirect(f'{recUrl}/token-expired')          
     except Exception as e:
       return redirect(f'{recUrl}/token-expired')
     
