@@ -288,18 +288,21 @@ try:
     
   @app.route("/confirmarEmail", methods =['GET'])      
   def confirmarEmail():
-    token = request.args.get('token')    
-    sql = f"SELECT * FROM verificacao WHERE token = '{token}';"
-    resposta = con.querySelectOne(sql)    
-    if resposta[4] == False:                    
-      sql = f"UPDATE verificacao SET isValid='true' WHERE senha = %s"
-      values = (resposta[3],)
-      con.queryExecute(sql, values)
-      sql = f'''INSERT INTO usuarios (nome, email, senha) SELECT %s, %s, %s WHERE NOT EXISTS (SELECT 1 FROM usuarios WHERE email = %s);'''
-      values = (resposta[1], resposta[2], resposta[3], resposta[2])
-      con.queryExecute(sql, values)
-      return redirect(f'{recUrl}/finalizado')
-    else:
+    try:
+      token = request.args.get('token')    
+      sql = f"SELECT * FROM verificacao WHERE token = '{token}';"
+      resposta = con.querySelectOne(sql)    
+      if resposta[4] == False:                    
+        sql = f"UPDATE verificacao SET isValid='true' WHERE senha = %s"
+        values = (resposta[3],)
+        con.queryExecute(sql, values)
+        sql = f'''INSERT INTO usuarios (nome, email, senha) SELECT %s, %s, %s WHERE NOT EXISTS (SELECT 1 FROM usuarios WHERE email = %s);'''
+        values = (resposta[1], resposta[2], resposta[3], resposta[2])
+        con.queryExecute(sql, values)
+        return redirect(f'{recUrl}/finalizado')
+      else:
+        return redirect(f'{recUrl}/finalizado')
+    except Exception as e:
       return redirect(f'{recUrl}/token-expired')
   
   @app.route("/enviarEmail", methods =['GET'])
