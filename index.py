@@ -273,19 +273,25 @@ try:
   
   @app.route('/check-email/<token>', methods =['GET'])    
   def checkEmail(token):
-    try:                   
-      decoded_token = decode_token(token)      
-      if decoded_token['type'] == 'access':
-        sql = f"SELECT * FROM verificacao WHERE token = '{token}';"
-        resposta = con.querySelectOne(sql)    
-        if resposta[4] == False:        
-          return redirect(url_for('confirmarEmail', token=token))
-        elif resposta[4] == True:
-          return redirect(f'{recUrl}/finalizado')
+    try:
+      contador = 0
+      if contador == 0:
+        contador += 1                   
+        decoded_token = decode_token(token)      
+        if decoded_token['type'] == 'access':
+          sql = f"SELECT * FROM verificacao WHERE token = '{token}';"
+          resposta = con.querySelectOne(sql)    
+          if resposta[4] == False:        
+            return redirect(url_for('confirmarEmail', token=token))
+          elif resposta[4] == True:
+            return redirect(f'{recUrl}/morreu-aqui')
+        else:
+          return redirect(f'{recUrl}/token-expired')
       else:
-        return redirect(f'{recUrl}/token-expired')       
+        return redirect(f'{recUrl}/finalizado')       
     except Exception as e:
       return redirect(f'{recUrl}/token-expired')
+    
   @app.route("/confirmarEmail", methods =['GET'])      
   def confirmarEmail():
     token = request.args.get('token')    
