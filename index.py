@@ -9,7 +9,7 @@ from psycopg2 import Error
 from bcrypt import hashpw, gensalt, checkpw
 from datetime import timedelta
 from flask_mail import Mail, Message
-from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity, decode_token, create_refresh_token
+from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity, decode_token
 
 try:
   con = Conexao(host=os.getenv("HOST"), user=os.getenv("USER"), password=os.getenv("PASSWORD"), port=os.getenv("PORT"), database=os.getenv("DATABASE"))   
@@ -37,23 +37,15 @@ try:
   
   apiUrl = 'https://api-rec.vercel.app'
   recUrl = 'https://rec-eight.vercel.app'
+    
   @app.route("/")
   def home():
       return "API ainda não explodiu"
   
-  # @jwt.expired_token_loader
-  # @cross_origin()
-  # def my_expired_token_callback(jwt_header, jwt_payload): 
-  #   return redirect(f'{recUrl}/token-expired')
-  
-  # @app.route('/refresh', methods=['POST'])
-  # @jwt_required(refresh=True)
-  # def refresh():
-  #     current_user = get_jwt_identity()
-  #     ret = {
-  #         'access_token': create_access_token(identity=current_user)
-  #     }
-  #     return jsonify(ret)
+  @jwt.expired_token_loader
+  @cross_origin()
+  def my_expired_token_callback(jwt_header, jwt_payload): 
+    return redirect(f'{recUrl}/token-expired') 
 
   @app.route("/usuarios", methods =['POST'])    
   def checarUsuarios():
@@ -276,40 +268,24 @@ try:
       return jsonify({'status': 'sucess'})
     except Exception as e:
       return redirect(f'{recUrl}/error404')
-  
-  @app.route('/check-email/<token>', methods =['GET'])    
-  def checkEmail(token):
-    try:                         
-        decoded_token = decode_token(token)      
-        if decoded_token['type'] == 'access':          
-          sql = f"SELECT * FROM verificacao WHERE token = '{token}';"
-          resposta = con.querySelectOne(sql)    
-          if resposta[4] == False:        
-            return redirect(url_for('confirmarEmail', token=token))
-          elif resposta[4] == True:
-            return redirect(f'{recUrl}/finalizado')
-        else:
-          return redirect(f'{recUrl}/token-expired')          
-    except Exception as e:
-      return redirect(f'{recUrl}/token-expired')
+      
     
-  @app.route("/confirmarEmail", methods =['GET'])      
-  def confirmarEmail():
-    try:
-      token = request.args.get('token')    
-      sql = f"SELECT * FROM verificacao WHERE token = '{token}';"
-      resposta = con.querySelectOne(sql)    
-      if resposta[4] == False:                    
-        sql = f"UPDATE verificacao SET isValid='true' WHERE senha = %s"
-        values = (resposta[3],)
-        con.queryExecute(sql, values)
-        sql = f'''INSERT INTO usuarios (nome, email, senha) SELECT %s, %s, %s WHERE NOT EXISTS (SELECT 1 FROM usuarios WHERE email = %s);'''
-        values = (resposta[1], resposta[2], resposta[3], resposta[2])
-        con.queryExecute(sql, values)
-        return redirect(f'{recUrl}/finalizado')
-      else:
-        return redirect(f'{recUrl}/finalizado')
-    except Exception as e:
+  @app.route("/confirmarEmail/<token>", methods =['GET'])      
+  def confirmarEmail(token):
+    try:        
+        sql = f"SELECT * FROM verificacao WHERE token = '{token}' AND isValid = 'false';"        
+        resposta = con.querySelectOne(sql)
+        if(resposta is None):
+            return redirect(f'{recUrl}/finalizado')
+        else:            
+            sql = f"UPDATE verificacao SET isValid=true WHERE token = %s"
+            values = (token,)
+            con.queryExecute(sql, values)
+            sql = f'''INSERT INTO usuarios (nome, email, senha) SELECT %s, %s, %s WHERE NOT EXISTS (SELECT 1 FROM usuarios WHERE email = %s);'''
+            values = (resposta[1], resposta[2], resposta[3], resposta[2])
+            con.queryExecute(sql, values)
+            return redirect(f'{recUrl}/finalizado?q={token}')
+    except Exception as e:      
       return redirect(f'{recUrl}/token-expired')
   
   @app.route("/enviarEmail", methods =['GET'])
@@ -324,14 +300,16 @@ try:
       values = (nome, email, senha, tokenEmail)
       con.queryExecute(sql, values)
       msg = Message('Confirmação de Cadastro', sender='project-rec@outlook.com', recipients=[f'{email}'])          
-      url = f'{apiUrl}/check-email/{tokenEmail}'     
+      url = f'{apiUrl}/confirmarEmail/{tokenEmail}'     
       msg.html = f'''        
         <p>Confirme seu cadastro através do link abaixo:</p>
-        <a href="{url}">{url}</a>'''
+        <a href="{url}">
+            {url}
+        </a>'''
       mail.send(msg)               
       return jsonify({'status': 'sucess'})
     except Exception as e:
-      return redirect(f'{recUrl}/error404')
+      return redirect(f'{recUrl}/error')
   
   @app.route('/recuperarSenha', methods =['POST'])
   def recuperarSenha():
