@@ -44,7 +44,7 @@ try:
     con.queryExecute(sql, values=None)
   
   scheduler = BackgroundScheduler()
-  scheduler.add_job(usersNotVerified, 'interval', days=1)
+  scheduler.add_job(usersNotVerified, 'interval', minutes=1)
   scheduler.start()
     
   @app.route("/")
