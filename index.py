@@ -73,28 +73,53 @@ try:
         else:
           return jsonify({'status' : 'fail'})
     except Exception as e:
-      return redirect(f'{recUrl}/error404')    
+      return redirect(f'{recUrl}/error404') 
   
   @app.route('/atualizarUsuario', methods=['POST'])
   @jwt_required()
   def atualizar_user():
     try:        
-      nome = request.json['nome']
-      email = request.json['email']
-      senha = request.json['senha']
+      nome = request.json['nome']     
+      senha = request.json['senha'].encode('utf-8')
       id_usuario = get_jwt_identity()
-      if verificaSenha(senha):
-        senha = senha.encode('utf-8')
-        salt = gensalt()
-        senha = hashpw(senha, salt).decode('utf-8')
-        sql = f"UPDATE usuarios SET nome=%s, email =%s, senha=%s WHERE id = %s"
-        values = (nome, email, senha, id_usuario)
+      sql = f"SELECT senha FROM usuarios WHERE id = {id_usuario}"
+      senhaBanco = con.querySelectOne(sql)[0]
+      if checkpw(senha, senhaBanco.encode('utf-8')):        
+        sql = f"UPDATE usuarios SET nome=%s WHERE id = %s"
+        values = (nome, id_usuario)
         con.queryExecute(sql, values)        
         return jsonify({'status': 'success'})
       else:
-        return jsonify({'status': 'senhaFraca'})
+        return jsonify({'status': 'fail'})
     except Exception as e:
       return redirect(f'{recUrl}/error404')
+    
+  @app.route("/atualizarSenha", methods =['POST'])
+  @jwt_required()
+  def atualizarSenha():
+    try:
+      senhaAtual = request.json['senhaAtual'].encode('utf-8')
+      senha = request.json['senha'].encode('utf-8')
+      id_usuario = get_jwt_identity()
+      sql = f"SELECT senha FROM usuarios WHERE id = {id_usuario}"
+      senhaBanco = con.querySelectOne(sql)[0]
+      if checkpw(senhaAtual, senhaBanco.encode('utf-8')):
+        if verificaSenha(senha):
+          salt = gensalt()
+          senha = hashpw(senha, salt).decode('utf-8')
+          sql = f"UPDATE usuarios SET senha=%s WHERE id = %s"
+          values = (senha, id_usuario)
+          con.queryExecute(sql, values)
+          return jsonify({'status': 'success'})
+        else:
+          return jsonify({'status': 'senhaFraca'})
+      else:
+        return jsonify({'status': 'fail'})
+    except Exception as e:
+      return redirect(f'{recUrl}/error404')
+      
+      
+    
     
   @app.route("/inserirUsuario", methods =['POST'])    
   def inserirUsuario():
