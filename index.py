@@ -309,7 +309,7 @@ try:
         sql = f"SELECT * FROM verificacao WHERE token = '{token}' AND isValid = 'false';"        
         resposta = con.querySelectOne(sql)
         if(resposta is None):
-            return redirect(f'{recUrl}/finalizado')
+            return redirect(f'{recUrl}/token-expired')
         else:            
             sql = f"UPDATE verificacao SET isValid=true WHERE token = %s"
             values = (token,)
