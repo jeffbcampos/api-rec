@@ -306,24 +306,20 @@ try:
   @app.route("/confirmarEmail/<token>", methods =['GET'])      
   def confirmarEmail(token):
     try:        
-        sql = "SELECT * FROM verificacao WHERE token = %s AND isValid = 'false'"
-        values = (token,)
-        resposta = con.querySelectOne(sql, values)
+        sql = f"SELECT * FROM verificacao WHERE token = '{token}' AND isValid = 'false';"        
+        resposta = con.querySelectOne(sql)
         if(resposta is None):
             return redirect(f'{recUrl}/finalizado')
-        else:
-            con.queryExecute("BEGIN")
-            sql = "UPDATE verificacao SET isValid=true WHERE token = %s"
+        else:            
+            sql = f"UPDATE verificacao SET isValid=true WHERE token = %s"
             values = (token,)
             con.queryExecute(sql, values)
-            sql = '''INSERT INTO usuarios (nome, email, senha) SELECT %s, %s, %s WHERE NOT EXISTS (SELECT 1 FROM usuarios WHERE email = %s);'''
+            sql = f'''INSERT INTO usuarios (nome, email, senha) SELECT %s, %s, %s WHERE NOT EXISTS (SELECT 1 FROM usuarios WHERE email = %s);'''
             values = (resposta[1], resposta[2], resposta[3], resposta[2])
             con.queryExecute(sql, values)
-            con.queryExecute("COMMIT")
             return redirect(f'{recUrl}/finalizado?q={token}')
-    except Exception as e:
-        con.queryExecute("ROLLBACK")
-        return redirect(f'{recUrl}/token-expired')
+    except Exception as e:      
+      return redirect(f'{recUrl}/token-expired')
   
   @app.route("/enviarEmail", methods =['GET'])
   def enviarEmail():
