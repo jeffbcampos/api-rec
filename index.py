@@ -88,7 +88,7 @@ try:
         sql = f"UPDATE usuarios SET nome=%s WHERE id = %s"
         values = (nome, id_usuario)
         con.queryExecute(sql, values)        
-        return jsonify({'status': 'success'})
+        return jsonify({'status': 'sucess'})
       else:
         return jsonify({'status': 'fail'})
     except Exception as e:
@@ -110,7 +110,7 @@ try:
           sql = f"UPDATE usuarios SET senha=%s WHERE id = %s"
           values = (senha, id_usuario)
           con.queryExecute(sql, values)
-          return jsonify({'status': 'success'})
+          return jsonify({'status': 'sucess'})
         else:
           return jsonify({'status': 'senhaFraca'})
       else:
