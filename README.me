@@ -1,10 +1,10 @@
-<h1>API REC</h1>
+#API REC
 
-<h2>Uso</h2>
+##Uso
 
 Esta API foi criada para ser usada com o site https://rec-eight.vercel.app/. Abaixo estão alguns exemplos de como usar a API:
 
-<h2>Rotas</h2>
+##Rotas
 
 - `POST /usuarios`: Autentica um usuário com base em seu e-mail e senha. Retorna um token de acesso JWT se a autenticação for bem-sucedida.
 
@@ -49,6 +49,6 @@ Esta API foi criada para ser usada com o site https://rec-eight.vercel.app/. Aba
 - `POST /novaSenha/<token>`: Redefine a senha do usuário usando o token fornecido no e-mail enviado pelo endpoint `/recuperarSenha`.
 
 
-<h2>Autenticação</h2>
+##Autenticação
 
 A autenticação é realizada usando tokens JWT. Os tokens expiram após 5 dias e podem ser atualizados usando o endpoint apropriado.
