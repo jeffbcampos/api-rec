@@ -1,5 +1,11 @@
 # API REC
 
+## Instruçaõ de uso e instalação
+
+Clone o repositório e no terminal execute pip install -r requirements.txt
+
+Isso instalará todas as bibliotecas listadas no arquivo requirements.txt que serão necessários pra rodar o projeto.
+
 ## Uso
 
 Esta API foi criada para ser usada com o site https://rec-eight.vercel.app/. Abaixo estão alguns exemplos de como usar a API:
