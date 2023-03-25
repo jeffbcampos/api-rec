@@ -49,7 +49,7 @@ try:
     
   @app.route("/")
   def home():
-      return "API ainda não explodiu"
+      return "Bem Vindo a API REC"
   
   @jwt.expired_token_loader
   @cross_origin()
