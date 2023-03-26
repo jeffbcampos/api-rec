@@ -1,6 +1,6 @@
 # API REC
 
-## Instruçaõ de uso e instalação
+## Instrução de uso e instalação
 
 Clone o repositório e no terminal execute pip install -r requirements.txt
 
