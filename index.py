@@ -1,3 +1,4 @@
+from authlib.integrations.flask_client import OAuth
 from dotenv import load_dotenv
 from apscheduler.schedulers.background import BackgroundScheduler
 from Controle.classConexao import Conexao
@@ -19,13 +20,15 @@ try:
   app.config['JWT_SECRET_KEY'] = os.getenv("KEY")
   app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=5)
   app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(days=5)
-  
+  app.secret_key = os.getenv("KEYAPP")  
   
   jwt = JWTManager(app)
   
   CORS(app)
   print("Conectado")
   mail = Mail(app)
+  oauth = OAuth(app)
+
   
   app.config['MAIL_SERVER'] = 'smtp.office365.com'
   app.config['MAIL_PORT'] = 587
@@ -42,14 +45,56 @@ try:
   def usersNotVerified():
     sql = "DELETE FROM verificacao WHERE isvalid = false"
     con.queryExecute(sql, values=None)
+    print('funcionou')
   
   scheduler = BackgroundScheduler()
   scheduler.add_job(usersNotVerified, 'interval', days=1)
   scheduler.start()
+  
+  google = oauth.register(
+    name='google',
+    client_id=os.getenv("CLIENTID"),
+    client_secret=os.getenv("CLIENTSECRET"),
+    access_token_url='https://accounts.google.com/o/oauth2/token',
+    access_token_params=None,
+    authorize_url='https://accounts.google.com/o/oauth2/auth',
+    authorize_params=None,
+    api_base_url='https://www.googleapis.com/oauth2/v1/',
+    jwks_uri='https://www.googleapis.com/oauth2/v3/certs',
+    userinfo_endpoint='https://openidconnect.googleapis.com/v1/userinfo',  
+    client_kwargs={'scope': 'openid email profile'},
+)
     
   @app.route("/")
   def home():
-      return "Bem Vindo a API REC"
+      return "API ainda não explodiu"
+    
+  @app.route('/google-login')
+  def google_login():
+    google = oauth.create_client('google')
+    redirect_uri = url_for('authorize', _external=True)
+    return google.authorize_redirect(redirect_uri)
+  
+  @app.route('/authorize')
+  def authorize():
+    google = oauth.create_client('google')
+    token = google.authorize_access_token()
+    print(token)
+    resp = google.get('userinfo')
+    user_info = resp.json()
+    email = user_info['email']
+    nome = user_info['name']    
+    sql = f"SELECT * FROM googlelogin WHERE email = '{email}';"
+    resposta = con.querySelectOne(sql)
+    if resposta is None:        
+      sql = f'''INSERT INTO googlelogin (nome, email) SELECT %s, %s WHERE NOT EXISTS (SELECT 1 FROM usuarios WHERE email = %s);'''
+      values = (nome, email, email)
+      con.queryExecute(sql, values)
+      return jsonify({'status': 'sucess'})
+    else:
+        app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=5)
+        access_token = create_access_token(identity=resposta[0])
+        return jsonify({'status': 'sucess', 'id': f'{resposta[0]}', 'nome': f'{resposta[1]}', 'access_token': f'{access_token}'})
   
   @jwt.expired_token_loader
   @cross_origin()
@@ -88,7 +133,7 @@ try:
         sql = f"UPDATE usuarios SET nome=%s WHERE id = %s"
         values = (nome, id_usuario)
         con.queryExecute(sql, values)        
-        return jsonify({'status': 'sucess'})
+        return jsonify({'status': 'success'})
       else:
         return jsonify({'status': 'fail'})
     except Exception as e:
@@ -110,7 +155,7 @@ try:
           sql = f"UPDATE usuarios SET senha=%s WHERE id = %s"
           values = (senha, id_usuario)
           con.queryExecute(sql, values)
-          return jsonify({'status': 'sucess'})
+          return jsonify({'status': 'success'})
         else:
           return jsonify({'status': 'senhaFraca'})
       else:
