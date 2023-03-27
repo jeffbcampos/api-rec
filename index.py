@@ -87,7 +87,7 @@ try:
     sql = f"SELECT * FROM googlelogin WHERE email = '{email}';"
     resposta = con.querySelectOne(sql)
     if resposta is None:        
-      sql = f'''INSERT INTO googlelogin (nome, email) SELECT %s, %s WHERE NOT EXISTS (SELECT 1 FROM usuarios WHERE email = %s);'''
+      sql = f'''INSERT INTO googlelogin (nome, email) SELECT %s, %s WHERE NOT EXISTS (SELECT 1 FROM googlelogin WHERE email = %s);'''
       values = (nome, email, email)
       con.queryExecute(sql, values)
       return jsonify({'status': 'sucess'})
