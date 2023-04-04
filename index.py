@@ -68,7 +68,7 @@ try:
     
   @app.route("/")
   def home():
-    url = 'https://github.com/jeffbcampos/api-rec/blob/main/README.md'
+    url = 'https://raw.githubusercontent.com/jeffbcampos/api-rec/main/README.md'
     response = requests.get(url)
     content = response.text
     return content
