@@ -5,6 +5,7 @@ from Controle.classConexao import Conexao
 from Controle.func import verificaSenha
 load_dotenv()
 import os
+import requests
 from flask import Flask, jsonify, request, redirect, url_for
 from flask_cors import CORS, cross_origin
 from psycopg2 import Error
@@ -67,7 +68,10 @@ try:
     
   @app.route("/")
   def home():
-      return "API ainda não explodiu"
+    url = 'https://github.com/jeffbcampos/api-rec/blob/main/README.md'
+    response = requests.get(url)
+    content = response.text
+    return content
     
   @app.route('/google-login')
   def google_login():
