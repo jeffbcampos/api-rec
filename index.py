@@ -68,10 +68,7 @@ try:
     
   @app.route("/")
   def home():
-    url = 'https://raw.githubusercontent.com/jeffbcampos/api-rec/main/README.md'
-    response = requests.get(url)
-    content = response.text
-    return content
+    return "API https://rec-eight.vercel.app"
     
   @app.route('/google-login')
   def google_login():
