@@ -88,8 +88,8 @@ try:
     sql = f"SELECT * FROM usuarios WHERE email = '{email}';"
     resposta = con.querySelectOne(sql)
     if resposta is None:        
-      sql = f'''INSERT INTO usuarios (nome, email, senha) SELECT %s, %s, %s WHERE NOT EXISTS (SELECT 1 FROM googlelogin WHERE email = %s);'''
-      values = (nome, email, token, email)
+      sql = f'''INSERT INTO usuarios (nome, email, senha) SELECT %s, %s, %s WHERE NOT EXISTS (SELECT 1 FROM usuarios WHERE email = %s);'''
+      values = (nome, email, nome, email)
       con.queryExecute(sql, values)
       tokenUser = create_access_token(identity=email, expires_delta=timedelta(days=5))
       return jsonify({'status': 'sucess', 'nome': f'{nome}', 'access_token': f'{tokenUser}'})
