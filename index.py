@@ -91,7 +91,7 @@ try:
       sql = f'''INSERT INTO usuarios (nome, email, senha) SELECT %s, %s, %s WHERE NOT EXISTS (SELECT 1 FROM googlelogin WHERE email = %s);'''
       values = (nome, email, token, email)
       con.queryExecute(sql, values)
-      tokenUser = create_access_token(identity=email, expires_delta=timedelta(minutes=30))
+      tokenUser = create_access_token(identity=email, expires_delta=timedelta(days=5))
       return jsonify({'status': 'sucess', 'nome': f'{nome}', 'access_token': f'{tokenUser}'})
     else:
         app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=5)
