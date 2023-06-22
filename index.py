@@ -91,7 +91,8 @@ try:
       sql = f'''INSERT INTO googlelogin (nome, email) SELECT %s, %s WHERE NOT EXISTS (SELECT 1 FROM googlelogin WHERE email = %s);'''
       values = (nome, email, email)
       con.queryExecute(sql, values)
-      return jsonify({'status': 'sucess'})
+      tokenUser = create_access_token(identity=email, expires_delta=timedelta(minutes=30))
+      return jsonify({'status': 'sucess', 'nome': f'{nome}', 'access_token': f'{tokenUser}'})
     else:
         app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=5)
         access_token = create_access_token(identity=resposta[0])
